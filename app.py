@@ -24,12 +24,18 @@ def translate_text():
         # --- ここが重要：Ollamaへの翻訳指示プロンプト ---
         # Google翻訳APIと違い、LLMには「何をしてほしいか」を明確に指示します。
         prompt = (
-            f"You are a professional translator. "
+            f"You are a professional and literal translator. "
             f"Translate the following {source_lang} text to {target_lang}. "
-            f"Output ONLY the translated text, without any introductory phrases or explanations.\n\n"
+            f"RULES: "
+            f"1. Output ONLY the translated text. "
+            f"2. Do NOT add any introductory phrases, explanations, or apologies. "
+            f"3. Do NOT omit any sentences, phrases, or information from the original text. "
+            f"4. Preserve the original formatting (like LaTeX delimiters $, $$, etc.) exactly.\n\n"
             f"{source_lang}:\n\"{source_text}\"\n\n"
             f"{target_lang}:"
         )
+        
+        # -----------------------------------------------
         # -----------------------------------------------
 
         # Ollama APIに送信するデータ
