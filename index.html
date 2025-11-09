@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ollama 翻訳</title>
+    <style>
+        body {
+            font-family: sans-serif;
+            margin: 20px;
+            background-color: #f4f4f4;
+        }
+        h1 {
+            text-align: center;
+        }
+        .container {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+        .box {
+            flex: 1;
+            max-width: 500px;
+        }
+        textarea {
+            width: 100%;
+            height: 300px;
+            padding: 10px;
+            box-sizing: border-box; /* パディングを含めて幅100%にする */
+            font-size: 16px;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+        }
+        .controls {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        button {
+            padding: 12px 24px;
+            font-size: 16px;
+            cursor: pointer;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 8px;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>Ollama 翻訳 (英語 → 日本語)</h1>
+
+    <div class="controls">
+        <button id="translate-btn">翻訳する</button>
+    </div>
+
+    <div class="container">
+        <div class="box">
+            <h3>原文 (英語)</h3>
+            <textarea id="source-text" placeholder="ここに英語のテキストを入力..."></textarea>
+        </div>
+        <div class="box">
+            <h3>翻訳 (日本語)</h3>
+            <textarea id="target-text" placeholder="ここに翻訳結果が表示されます..." readonly></textarea>
+        </div>
+    </div>
+
+    <script>
+        // DOMが読み込まれたら実行
+        document.addEventListener('DOMContentLoaded', () => {
+            
+            const translateBtn = document.getElementById('translate-btn');
+            const sourceText = document.getElementById('source-text');
+            const targetText = document.getElementById('target-text');
+
+            // バックエンドAPIのURL (Flaskサーバーのアドレス)
+            const API_URL = 'http://127.0.0.1:5000/translate';
+
+            // ボタンがクリックされたときの処理
+            translateBtn.addEventListener('click', async () => {
+                const textToTranslate = sourceText.value;
+
+                if (!textToTranslate.trim()) {
+                    alert('翻訳するテキストを入力してください。');
+                    return;
+                }
+
+                // ローディング表示
+                targetText.value = '翻訳中...';
+                translateBtn.disabled = true;
+
+                try {
+                    // バックエンドにリクエストを送信
+                    const response = await fetch(API_URL, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({
+                            text: textToTranslate,
+                            source_lang: 'English', // 固定
+                            target_lang: 'Japanese' // 固定
+                        }),
+                    });
+
+                    if (!response.ok) {
+                        const errorData = await response.json();
+                        throw new Error(errorData.error || '翻訳リクエストに失敗しました。');
+                    }
+
+                    const data = await response.json();
+                    
+                    // 翻訳結果を表示
+                    targetText.value = data.translation;
+
+                } catch (error) {
+                    console.error('翻訳エラー:', error);
+                    targetText.value = `エラーが発生しました: ${error.message}`;
+                } finally {
+                    // ボタンを再度有効化
+                    translateBtn.disabled = false;
+                }
+            });
+        });
+    </script>
+</body>
+</html>
