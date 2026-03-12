@@ -40,7 +40,7 @@ def translate_text():
 
         # Ollama APIに送信するデータ
         payload = {
-            "model": "gemma3:4b",  # ここで使用するモデルを指定
+            "model": "gemma3n:e4b",  # ここで使用するモデルを指定
             "prompt": prompt,
             "stream": False  # ストリーミングをオフにして、一度に全結果を受け取る
         }
